@@ -1,10 +1,12 @@
-import main as fct
+import functions as fct
 import tree as ds
 import numpy as np
 
 
-def create_trees( data_source ):
+# creates six decision trees based on the whole data set and saves them in a pkl file
+def create_trees( data_source, data_target ):
     # param data_source: filename of the data source
+    # param data_target: filename for the trees (use .pkl), for '' trees will not be saved
     # return array of the six trees, tree[i] for emotion i+1
 
     # init basic variables
@@ -17,6 +19,10 @@ def create_trees( data_source ):
         targets = fct.get_binary_targets( emotion, labels )
         root = fct.decision_tree_learning( examples, attributes, targets )
         trees[emotion-1] = ds.DecisionTree( emotion, root )
+
+    # save trees if desired
+    if data_target != '':
+        fct.save_object( trees, data_target )
 
     return trees
 

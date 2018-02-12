@@ -1,4 +1,5 @@
 import scipy.io as sio #to read .mat files. Archives must be uncompressed.
+import pickle
 import math
 import tree as ds
 
@@ -11,6 +12,18 @@ def load_data(filename): #NOTE: Matlab arrays start with index 1 while Python st
     examples = mat_contents['x'] #load the example dataset. size = N*45 where N = number of examples
     labels = mat_contents['y'] #load the labels. size = N * 1
     return (examples, labels)
+
+
+# saves an object in a pickle file
+def save_object( obj, filename ):
+    with open( filename, 'wb' ) as output:
+        pickle.dump( obj, output, pickle.HIGHEST_PROTOCOL )
+    pass
+
+
+# loads an object from a pickle file
+def load_object( filename ):
+    return pickle.load( open( filename, "rb" ) )
 
     
 #create the list of binary_target setting all the examples with given target_value to 1 and everything else with 0.

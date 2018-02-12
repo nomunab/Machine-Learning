@@ -9,6 +9,9 @@ class DecisionTree:
         # the root node
         self.root = root
 
+    def getRoot( self ):
+        return self.root
+
     def setRoot( self, root_node ):
         self.root = root_node
 
