@@ -15,6 +15,13 @@ def load_data(filename): #NOTE: Matlab arrays start with index 1 while Python st
     return (examples, labels)
 
 
+# write a given string into a file
+def write_file( filename, text ):
+    file = open( filename, 'w' )
+    file.write( text )
+    file.close()
+
+
 # saves an object in a pickle file
 def save_object( obj, filename ):
     with open( filename, 'wb' ) as output:

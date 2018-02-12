@@ -4,7 +4,7 @@ import numpy as np
 
 
 # creates six decision trees based on the whole data set and saves them in a pkl file
-def create_trees( data_source, data_target ):
+def create_trees( data_source, data_target='', visu_target='' ):
     # param data_source: filename of the data source
     # param data_target: filename for the trees (use .pkl), for '' trees will not be saved
     # return array of the six trees, tree[i] for emotion i+1
@@ -23,6 +23,14 @@ def create_trees( data_source, data_target ):
     # save trees if desired
     if data_target != '':
         fct.save_object( trees, data_target )
+
+    # save visualisation if desired
+    if visu_target != '':
+        out = ''
+        for t in range( len( trees ) ):
+            out += 'Tree for emotion ' + str( trees[t].getLabel() )
+            out += trees[t].visualise() + '\n\n'
+        fct.write_file( visu_target, out )
 
     return trees
 

@@ -1,3 +1,6 @@
+import anytree as at
+
+
 class DecisionTree:
 
     # the initialisation function
@@ -11,6 +14,9 @@ class DecisionTree:
 
     def getRoot( self ):
         return self.root
+
+    def getLabel( self ):
+        return self.label
 
     def setRoot( self, root_node ):
         self.root = root_node
@@ -45,9 +51,29 @@ class DecisionTree:
 
 
     # a function to create a visualisation of the tree
-    def visualise(self):
-        # TODO
-        pass
+    def visualise( self , node=None, a_node=None ):
+
+        if node is None:
+            a_root = at.Node( self.root.getAttribute() )
+            self.visualise( self.root, a_root )
+            out = ''
+            for pre, fill, node in at.RenderTree(a_root):
+                out += "\n%s%s" % (pre, node.name)
+            return out
+        else:
+            for i in range( 2 ):
+                child = node.getChild( i )
+                if child.isLeafNode():
+                    if child.getClassvalue() == 0:
+                        a_child = at.Node( 'n', parent=a_node )
+                    else:
+                        a_child = at.Node( 'p', parent=a_node )
+                else:
+                    a_child = at.Node( child.getAttribute(), parent=a_node )
+                    self.visualise( child, a_child )
+
+
+
 
 
 class Node:
@@ -67,6 +93,9 @@ class Node:
         self.classvalue = None
         # ratio of positive examples, i.e. basis for the classvalue
         self.positive_ratio = None
+
+    def getParent( self ):
+        return self.parent
 
     def getChild( self, child_index ):
         # param child_index: is attribute value positive (1) or negative (0)
