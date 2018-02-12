@@ -1,6 +1,7 @@
 import scipy.io as sio #to read .mat files. Archives must be uncompressed.
 import pickle
 import math
+import random
 import tree as ds
 
 
@@ -55,12 +56,12 @@ def decision_tree_learning( examples, attributes, binary_targets ):
     while i < N and binary_targets[0] == binary_targets[i]:
         i = i + 1
     if i == N:
-        node.setLeafNode( binary_targets[0] )
+        node.setLeafNode( binary_targets[0], float( binary_targets[0] ) )
         return node
 
     # check whether there are no attributes left
     if len(attributes) == 0:
-        node.setLeafNode( majority_value( binary_targets ) )
+        node.setLeafNode( majority_value( binary_targets ), positive_ratio( binary_targets ) )
         return node
 
     # choose best classification attribute and remove it from list of attributes
@@ -81,7 +82,7 @@ def decision_tree_learning( examples, attributes, binary_targets ):
 
         # if the attribute can not seperate the examples, the current node becomes a leaf node
         if len( sub_targets ) == 0:
-            node.setLeafNode( majority_value( binary_targets ) )
+            node.setLeafNode( majority_value( binary_targets ), positive_ratio( binary_targets ) )
             return node
 
         # create child nodes with respective subset of examples
@@ -141,12 +142,18 @@ def choose_best_decision_attribute( examples, attributes, binary_targets ):
 def majority_value( binary_targets ):
     # param binary_targets: target vector according to specification on page 13
     # return: the mode of the binary targets
-    p_positive = binary_targets.count(1)
-    p_negative = binary_targets.count(0)
-    if p_positive > p_negative:
+    if positive_ratio( binary_targets ) > 0.5:
         return 1
     else:
         return 0
+
+
+# sub-function used in learning function
+def positive_ratio( binary_targets ):
+    # param binary_targets: target vector according to specification on page 13
+    # return: the ratio of positive examples in the binary_target vector
+    p_positive = binary_targets.count(1)
+    return float( p_positive ) / float( len( binary_targets ) )
 
 
 def testTrees( trees, x2 ):
@@ -165,7 +172,49 @@ def testTrees( trees, x2 ):
         if tree_pred.count(1) == 1:
             pred[i] = tree_pred.index(1) + 1
         else:
-            # implement strategy here
-            pass
+            # strategy if classification is not unique
+            # -- strategy one:
+            pred[i] = random_classifier( tree_pred ) + 1
+            # -- strategy two:
+            #tree_pred_ratios = [0.0] * len( trees )
+            #for t in range( len( trees ) ):
+            #    tree_pred_ratios[t] = trees[t].getPositiveRatio( x2[i] )
+            #pred[i] = positive_ratio_classifier( tree_pred_ratios ) + 1
+            # -- supervision:
+            #print('-----')
+            #print( tree_pred )
+            #print( tree_pred_ratios )
+            #print( pred[i] )
 
     return pred
+
+
+# chooses a classifier out of a list of possible classifiers randomly
+def random_classifier( pred_class ):
+    # param pred_class: a binary array, with pred_class[i] = 1 indicating that classifier i is possible
+    # return: a classifier
+
+    n = pred_class.count( 1 )
+    if n == 0:
+        n = len( pred_class )
+    r = random.random()
+
+    for i in range( len( pred_class ) ):
+        if pred_class[i] == 1 or n == len( pred_class ):
+            r -= 1.0 / float( n )
+            if r < 0:
+                return i
+
+    # just for safety reasons (I am scared of numerical issues)
+    return 0
+
+
+# chooses the classifier that is most convinced that the datum is positive
+def positive_ratio_classifier( pred_ratios ):
+    # param pred_class: an array with the positive ratios of each classfier
+    # return: a classifier
+
+    if max( pred_ratios ) > 0.0:
+        return pred_ratios.index( max( pred_ratios ) )
+    else:
+        return random_classifier( pred_ratios )

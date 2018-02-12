@@ -29,6 +29,7 @@ def create_trees( data_source, data_target ):
 
 def cross_validation( data_source ):
     # param data_source: filename of the data source
+    # return: the average confusion matrix
 
     # init basic variables
     fold_factor = 10
@@ -37,13 +38,11 @@ def cross_validation( data_source ):
     N = len(labels)
     cs = int( N / fold_factor )
 
-    # statistical data for each emotion
+    # statistical data for each emotion: confusion matrix
     # cma[i][j] counts for how many data had label i+1 and label j+1 was predicted
-    # zc counts how many data could not be assigned to exactly one class
     cma = np.zeros( (6, 6) )
-    zc = 0
 
-    for c in range(1,fold_factor):
+    for c in range( fold_factor ):
 
         # divide the data set into training and test set
         training_examples = np.concatenate( (np.copy( examples[:(c*cs)] ), np.copy( examples[((c+1)*cs):] )), axis=0 )
@@ -64,10 +63,10 @@ def cross_validation( data_source ):
         # count labels and predictions
         for i in range( len( test_examples ) ):
             if pred[i] == 0:
-                zc += 1
                 continue
             cma[test_labels[i] - 1, pred[i] - 1] += 1.0
 
-    # print(zc)
+    # average confusion matrix
+    cma = ( 1. / float( fold_factor ) ) * cma
 
     return cma
